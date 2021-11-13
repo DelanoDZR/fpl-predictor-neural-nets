@@ -1,31 +1,34 @@
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
+import os
 
 
-def read_data():
-    dataset = pd.read_csv(
-        "data/by_gameweek/mids\\gw1.csv", sep=",", index_col=0)
-    return dataset
+def get_data_sets(position):
+    all_features = []
+    all_labels = []
+    a_directory = "data\\by_player\\%s" % position
 
-def split_data(dataset):
+    for filename in os.listdir(a_directory):
+        filepath = os.path.join(a_directory, filename)
+        dataset = pd.read_csv(
+            filepath, sep=",")
+        dataset = dataset.drop(
+            columns=['name', 'GW', 'was_home', 'transfers_in', 'transfers_out', 'transfers_balance', 'selected',
+                     'round', 'opponent_team', 'kickoff_time', 'fixture', 'position', 'team'])
 
+        player_gameweeks_labels = dataset.pop('Target_Output')
 
+        player_gameweeks_features = dataset[:3] #Pull 3 gameweeks per player
+        player_gameweeks_labels = player_gameweeks_labels[4] #Target the fourth gameweek
 
-    train, test = train_test_split(dataset.copy(), test_size=0.2)
-    train.pop('name')
-    test.pop('name')
+        all_features.append(player_gameweeks_features)
+        all_labels.append(player_gameweeks_labels)
 
-    train_labels = train.pop('Target_Output')
-    train_features = np.array([train.to_numpy()], dtype=np.float)
-    train_labels = np.array([train_labels], dtype=np.float)
+    #Split the data into training and test sets
+    train_features = np.array(all_features[:20], dtype=np.float)
+    train_labels = np.array(all_labels[:20], dtype=np.float)
 
-    test_labels = test.pop('Target_Output')
-    test_features = np.array([test.to_numpy()], dtype=np.float)
-    test_labels = np.array([test_labels], dtype=np.float)
+    test_features = np.array(all_features[21:30], dtype=np.float)
+    test_labels = np.array(all_labels[21:30], dtype=np.float)
 
     return train_features, train_labels, test_features, test_labels
-
-
-def get_data_sets():
-    return split_data(read_data())
