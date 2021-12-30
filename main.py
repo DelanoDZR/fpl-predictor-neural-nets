@@ -7,8 +7,8 @@ import result
 
 def main():
 
-    position = 'mids'   # gks, defs, mids, fwds
-    window = 6          # 3, 6, 9
+    position = 'fwds'   # gks, defs, mids, fwds
+    window = 9          # 3, 6, 9
 
     train_features, train_labels, test_features, test_labels = data.get_data_sets(position, window)
 
