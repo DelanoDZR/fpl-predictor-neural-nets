@@ -2,46 +2,36 @@ import data
 import learn
 import models
 import plot
-
-
-class Result:
-    def __init__(self, fil, ker, mse):
-        self.filters =  fil
-        self.kernel_size = ker
-        self. mse = mse
+import result
 
 
 def main():
 
-    #positions = {'GK': 'gks'} #, 'DEF': 'defs', 'MID': 'mids', 'FWD': 'fwds'}
-    arr = []
-    arr2 = []
-    train_features, train_labels, test_features, test_labels = data.get_data_sets('gks')
+    position = 'mids'   # gks, defs, mids, fwds
+    window = 6          # 3, 6, 9
 
-    filters = [32, 64, 128, 256]
-    kernel_size = [1,2]
-    for i in filters:
-        for j in kernel_size:
+    train_features, train_labels, test_features, test_labels = data.get_data_sets(position, window)
 
-            model = models.cnn((None, 23), i, j)
+    results = []
+    number_of_filters = [32, 64, 128, 256]
+    kernel_sizes = []
+    if window == 3:
+        kernel_sizes = [1,2]
+    elif window == 6:
+        kernel_sizes = [1,2,3,4,5]
+    elif window == 9:
+        kernel_sizes = [1,2,3,4,5,6,7,8]
+
+    for filter_count in number_of_filters:
+        for kernel_size in kernel_sizes:
+            print("Beginning processing of network with " +
+                  str(filter_count) + " filters of kernel size " + str(kernel_size))
+            model = models.cnn((None, 23), filter_count, kernel_size, position)
             mse, history = learn.train_and_evaluate(model, train_features, train_labels, test_features, test_labels, 100)
-            arr.append("Filters = " + str(i) + "\n" +
-                       "Kernel_Size = " + str(j) + "\n" +
-                       "MSE = " + str(mse) + "\n\n")
-            arr2.append(Result(i, j, mse))
-            plot.plotTraining(history)
+            results.append(result.Result(filter_count, kernel_size, mse))
+            plot.plot_training(history, filter_count, kernel_size, position)
 
-
-    for z in arr:
-        print(z)
-
-    print()
-    print(arr2[0].filters)
-
-
-
-    #print(train_features.shape)
-    #print(train_labels.shape)
+    plot.plot_evaluation(results, position)
 
 
 if __name__ == "__main__":

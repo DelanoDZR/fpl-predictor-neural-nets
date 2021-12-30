@@ -3,7 +3,8 @@ import numpy as np
 import os
 
 
-def get_data_sets(position):
+def get_data_sets(position, window):
+    windows_targets = {3:4, 6:7, 9:10}
     all_features = []
     all_labels = []
     a_directory = "data\\by_player\\%s" % position
@@ -18,8 +19,8 @@ def get_data_sets(position):
 
         player_gameweeks_labels = dataset.pop('Target_Output')
 
-        player_gameweeks_features = dataset[:3] #Pull 3 gameweeks per player
-        player_gameweeks_labels = player_gameweeks_labels[4] #Target the fourth gameweek
+        player_gameweeks_features = dataset[:window] #Pull x gameweeks per player
+        player_gameweeks_labels = player_gameweeks_labels[windows_targets[window]] #Target the x+1 gameweek
 
         all_features.append(player_gameweeks_features)
         all_labels.append(player_gameweeks_labels)
