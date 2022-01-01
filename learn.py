@@ -12,4 +12,3 @@ def train_and_evaluate(model, train_features, train_labels, test_features, test_
 
     print("Evaluation")
     return model.evaluate(test_features, test_labels, verbose=2), history
-
